@@ -1,12 +1,14 @@
 # The River MCP server
 
-Remote [Model Context Protocol](https://modelcontextprotocol.io) server for tokenized stocks onchain. It answers three questions an agent cannot easily answer elsewhere:
+[The River](https://app.theriver.markets) is the best place to trade and invest in tokenized equities: stock tokens from ST0x, Coinbase and Robinhood on Base and Robinhood Chain, compared in one place so each buy goes to the lowest price you may use. This is its remote [Model Context Protocol](https://modelcontextprotocol.io) server. An agent can read prices, holdings, history and P&L, and build market trades, limit orders and recurring buys that the user signs in their own wallet.
+
+It answers questions an agent cannot easily answer elsewhere:
 
 - **Which issuer's token of a stock is cheapest right now?** The same share is sold as a token by several issuers (ST0x, Coinbase, Robinhood) at different prices.
 - **How far is the token from the real stock price?** Including nights and weekends, when the US market is shut.
-- **How do I hand my user a trade they can check and sign themselves?** A link that opens a pre-filled ticket on The River.
+- **How do I hand my user a trade they can check and sign themselves?** A link that opens a pre-filled ticket on The River, or the unsigned transactions themselves.
 
-Read-only. No account, no API key. The server never takes keys and never signs anything: every trade is reviewed and signed by the person, in their own wallet, on [theriver.markets](https://theriver.markets).
+No account, no API key. The server never takes keys and never signs or sends anything: the build tools return unsigned transactions, each with a plain description, and the person signs them in their own wallet (or reviews a pre-filled ticket on [app.theriver.markets](https://app.theriver.markets)).
 
 | | |
 |---|---|
@@ -15,7 +17,8 @@ Read-only. No account, no API key. The server never takes keys and never signs a
 | Auth | none |
 | Official MCP Registry | `markets.theriver/the-river` |
 | Plain-text guide for agents | <https://theriver.markets/llms.txt> |
-| Human page | <https://theriver.markets/agents> |
+| Human page | <https://app.theriver.markets/agents> |
+| Same features over plain HTTP + JSON | <https://app.theriver.markets/docs> (`/api/v1`, no key) |
 
 ## Connect
 
@@ -55,6 +58,16 @@ curl -s https://theriver.markets/mcp \
 | `strategy_link` | A pre-filled strategy card link (Base, ST0x stocks): buy the dip, recurring buy, take profit, stop, sell ladder and others. Fields are listed in the tool description. |
 | `wallet_holdings` | Any wallet's stock-token and cash balances on the chains The River serves (public onchain data). |
 | `wallet_pnl` | Any wallet's profit and loss on Base from public chain data, per token and per strategy. |
+| `wallet_history` | Any wallet's stock-token buys, sells and transfers on Base and Robinhood Chain, newest first, with price and transaction. |
+| `market_trade` | Build a market buy or sell on The River's best-execution route (the site's own route). Returns the quote (price, minimum out, fee, venue) and the unsigned approve + swap. |
+| `place_limit_order` | Build a limit buy or sell against USDC (Base) or USDG (Robinhood Chain). Exact approve only, never unlimited. No fee to place. Unsigned transactions. |
+| `list_limit_orders` | A wallet's limit orders on one chain: open, partially filled, filled or cancelled, with filled and remaining amounts. |
+| `cancel_limit_order` | One unsigned transaction: withdraw what the order still holds, then remove it. |
+| `withdraw` | Withdraw an exact amount or everything from one of the owner's order vaults. Unsigned. |
+| `start_recurring_buy` | Build a recurring buy of an ST0x stock token: budget deposited now, spent over days or hours in buys of at least $25, never above your max price. No fee to start or stop. Unsigned. |
+| `stop_recurring_buy` | One unsigned transaction: withdraw what the plan has not spent and what it bought, then remove it. |
+
+Every build tool returns unsigned transactions for the user to sign in their own wallet, in order; nothing is sent or signed by the server.
 
 ## Example
 
@@ -78,7 +91,7 @@ Prices per share for a $100 buy at the time shown; not live. For an executable b
 - **Prices are snapshots, not live quotes.** Every answer carries its time. The executable price is the one on the ticket the user opens.
 - **Who may hold a token is set by its issuer.** Coinbase's stock tokens, for example, are not offered to US persons. The ticket shows the issuer's terms before a buy; the tools do not check the user's eligibility.
 - **A token is not the share.** Each issuer owes the holder its value on its own terms.
-- **Fees.** The River charges 0.10% on routed trades and orderbook fills, shown before signing, plus network gas. Limit orders and strategies carry no River fee.
+- **Fees.** A market trade may carry The River's fee of at most 0.10%, inside the quoted amounts and named in the quote, plus network gas. Placing and cancelling limit orders and recurring plans has no River fee.
 - **Rate limits.** Please stay under 60 requests a minute per address.
 - **No warranty.** Nothing here is investment advice.
 

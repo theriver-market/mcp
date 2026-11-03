@@ -1,10 +1,10 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "markets.theriver/the-river",
-  "description": "Tokenized US stocks onchain: listings, holdings, US prices, pre-filled trade links. Read-only.",
+  "description": "Trade and invest in tokenized stocks: prices, holdings, P&L, unsigned market/limit/recurring trades.",
   "title": "The River",
-  "version": "1.0.0",
-  "websiteUrl": "https://theriver.markets/agents",
+  "version": "1.1.0",
+  "websiteUrl": "https://app.theriver.markets/agents",
   "remotes": [
     {
       "type": "streamable-http",
